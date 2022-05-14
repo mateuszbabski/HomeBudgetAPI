@@ -37,7 +37,7 @@ namespace HomeBudget.Services
             {
                 FirstName = dto.FirstName,
                 Email = dto.Email,
-                //Password = dto.Password,
+                Password = dto.Password
 
             };
 

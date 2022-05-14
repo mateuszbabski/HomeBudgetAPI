@@ -7,13 +7,12 @@ namespace HomeBudget.Entities
         
         public DbSet<Budget> Budgets { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Type> Types { get; set; }
         public DbSet<User> Users { get; set; }
+       
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=BudgetAppDB;Trusted_Connection=true;");
+            optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=BudgetDB;Trusted_Connection=true;");
         }
     }
 

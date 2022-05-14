@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HomeBudget.Migrations
 {
     [DbContext(typeof(BudgetDbContext))]
-    [Migration("20220508193908_PasswordHashing")]
-    partial class PasswordHashing
+    [Migration("20220512225436_INIT2")]
+    partial class INIT2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -38,25 +38,14 @@ namespace HomeBudget.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("Budgets");
-                });
-
-            modelBuilder.Entity("HomeBudget.Entities.Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("UserID")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Budgets");
                 });
 
             modelBuilder.Entity("HomeBudget.Entities.Transaction", b =>
@@ -68,9 +57,6 @@ namespace HomeBudget.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<int>("BudgetID")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CategoriesId")
                         .HasColumnType("int");
 
                     b.Property<string>("Category")
@@ -85,9 +71,6 @@ namespace HomeBudget.Migrations
                     b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("TypesId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Value")
                         .HasColumnType("decimal(18,2)");
 
@@ -95,27 +78,7 @@ namespace HomeBudget.Migrations
 
                     b.HasIndex("BudgetID");
 
-                    b.HasIndex("CategoriesId");
-
-                    b.HasIndex("TypesId");
-
                     b.ToTable("Transactions");
-                });
-
-            modelBuilder.Entity("HomeBudget.Entities.Type", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Types");
                 });
 
             modelBuilder.Entity("HomeBudget.Entities.User", b =>
@@ -143,6 +106,17 @@ namespace HomeBudget.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("HomeBudget.Entities.Budget", b =>
+                {
+                    b.HasOne("HomeBudget.Entities.User", "User")
+                        .WithMany("Budgets")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("HomeBudget.Entities.Transaction", b =>
                 {
                     b.HasOne("HomeBudget.Entities.Budget", "Budget")
@@ -151,24 +125,17 @@ namespace HomeBudget.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HomeBudget.Entities.Category", "Categories")
-                        .WithMany()
-                        .HasForeignKey("CategoriesId");
-
-                    b.HasOne("HomeBudget.Entities.Type", "Types")
-                        .WithMany()
-                        .HasForeignKey("TypesId");
-
                     b.Navigation("Budget");
-
-                    b.Navigation("Categories");
-
-                    b.Navigation("Types");
                 });
 
             modelBuilder.Entity("HomeBudget.Entities.Budget", b =>
                 {
                     b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("HomeBudget.Entities.User", b =>
+                {
+                    b.Navigation("Budgets");
                 });
 #pragma warning restore 612, 618
         }

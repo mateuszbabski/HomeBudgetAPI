@@ -14,7 +14,7 @@ namespace HomeBudget.Controllers
         {
             _accountService = accountService;
         }
-
+        
         [HttpPost("register")]
         public ActionResult RegisterUser(RegisterUserModel dto)
         {

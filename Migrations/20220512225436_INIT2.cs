@@ -4,7 +4,7 @@
 
 namespace HomeBudget.Migrations
 {
-    public partial class InitialTwo : Migration
+    public partial class INIT2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

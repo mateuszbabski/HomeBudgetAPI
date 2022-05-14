@@ -11,6 +11,12 @@
         public string Password { get; set; }
 
         public string PasswordHash { get; set; }
+
+        public List<Budget> Budgets { get; set; }
+
+        
+        
+
     }
 }
         

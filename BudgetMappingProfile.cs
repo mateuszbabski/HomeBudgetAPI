@@ -16,6 +16,8 @@ namespace HomeBudget
 
             CreateMap<CreateBudgetModel, Budget>();
 
+            
+
         }
     }
 }

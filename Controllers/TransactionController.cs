@@ -1,11 +1,14 @@
 ﻿using HomeBudget.Models;
 using HomeBudget.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HomeBudget.Controllers
 {
-    [Route("api/budget/{budgetid}/transaction/")]
+    [Route("api/budget/{budgetId}/transactions/")]
     [ApiController]
+    [Authorize]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionService _transactionService;
@@ -34,6 +37,7 @@ namespace HomeBudget.Controllers
         [HttpPost]
         public ActionResult Create(CreateTransactionModel dto, int budgetId)
         {
+            var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var id = _transactionService.Create(dto, budgetId);
 
             return Created($"/api/budget/{budgetId}/transaction/{id}", null);

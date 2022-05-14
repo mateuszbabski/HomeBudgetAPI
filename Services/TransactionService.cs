@@ -13,6 +13,7 @@ namespace HomeBudget.Services
         
         TransactionModel GetById(int id, int budgetId);
         void Update(UpdateTransactionModel dto, int id, int budgetId);
+        Budget GetBudgetById(int id);
     }
 
     public class TransactionService : ITransactionService
@@ -30,7 +31,8 @@ namespace HomeBudget.Services
         {
             var budget = GetBudgetById(budgetId);
 
-            var transaction = _dbContext.Transactions.FirstOrDefault(x => x.Id == id);
+            var transaction = _dbContext.Transactions
+                .FirstOrDefault(x => x.Id == id);
 
             if(transaction is null || transaction.BudgetID != budgetId)
             {
@@ -70,7 +72,8 @@ namespace HomeBudget.Services
         public void Update(UpdateTransactionModel dto, int id, int budgetId)
         {
             var budget = GetBudgetById(budgetId);
-            var transaction = _dbContext.Transactions.FirstOrDefault(x => x.Id == id);
+            var transaction = _dbContext.Transactions
+                .FirstOrDefault(x => x.Id == id);
 
             if (transaction is null || transaction.BudgetID != budgetId)
             {
@@ -91,7 +94,8 @@ namespace HomeBudget.Services
         {
             var budget = GetBudgetById(budgetId);
 
-            var transaction = _dbContext.Transactions.FirstOrDefault(x => x.Id == id);
+            var transaction = _dbContext.Transactions
+                .FirstOrDefault(x => x.Id == id);
 
             if (transaction is null || transaction.BudgetID != budgetId)
             {
@@ -104,14 +108,17 @@ namespace HomeBudget.Services
 
         public Budget GetBudgetById(int budgetId)
         {
-            var budget = _dbContext.Budgets.Include(r => r.Transactions).FirstOrDefault(x => x.Id == budgetId);
+            var budget = _dbContext.Budgets
+                .Include(r => r.Transactions)
+                .FirstOrDefault(x => x.Id == budgetId);
 
             if(budget is null)
             {
                 throw new Exception("Budget Id not found");
             }
 
-            return budget;
+            var result = _mapper.Map<Budget>(budget);
+            return result;
         }
     }
 }

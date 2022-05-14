@@ -2,10 +2,12 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using HomeBudget;
 using HomeBudget.Authentication;
+using HomeBudget.Authorization;
 using HomeBudget.Entities;
 using HomeBudget.Models;
 using HomeBudget.Models.Validators;
 using HomeBudget.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -41,8 +43,9 @@ builder.Services.AddAuthentication(opt =>
 // Add services to the container.
 
 builder.Services.AddControllers().AddFluentValidation();
-builder.Services.AddScoped<BudgetSeeder>();
+
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
+builder.Services.AddScoped<IAuthorizationHandler, ResourceOperationRequirementHandler>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
@@ -60,9 +63,7 @@ var app = builder.Build();
 
 var scope = app.Services.CreateScope();
 
-var seeder = scope.ServiceProvider.GetRequiredService<BudgetSeeder>();
 
-seeder.Seed();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
