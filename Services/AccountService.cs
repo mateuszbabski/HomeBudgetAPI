@@ -1,5 +1,6 @@
 ﻿using HomeBudget.Authentication;
 using HomeBudget.Entities;
+using HomeBudget.Exceptions;
 using HomeBudget.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -55,14 +56,14 @@ namespace HomeBudget.Services
 
             if (user is null)
             {
-                throw new BadHttpRequestException("Email not found in database");
+                throw new BadRequestException("Invalid username or password");
             }
 
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
 
             if (result == PasswordVerificationResult.Failed)
             {
-                throw new BadHttpRequestException("Invalid username or password");
+                throw new BadRequestException("Invalid username or password");
             }
 
             var claims = new List<Claim>()

@@ -4,6 +4,7 @@ using HomeBudget;
 using HomeBudget.Authentication;
 using HomeBudget.Authorization;
 using HomeBudget.Entities;
+using HomeBudget.Middleware;
 using HomeBudget.Models;
 using HomeBudget.Models.Validators;
 using HomeBudget.Services;
@@ -50,7 +51,11 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IValidator<RegisterUserModel>, RegisterUserModelValidator>();
+//builder.Services.AddScoped<IValidator<TransactionsQuery>, TransactionQueryValidator>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
+builder.Services.AddScoped<ErrorHandlingMiddleware>();
+builder.Services.AddHttpContextAccessor();
 
 
 
@@ -71,6 +76,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseHttpsRedirection();

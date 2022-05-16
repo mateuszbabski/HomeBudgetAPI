@@ -8,16 +8,19 @@ namespace HomeBudget
     {
         public BudgetMappingProfile()
         {
+            //CreateMap<A, B> - create map from A to B 
             CreateMap<Transaction, TransactionModel>();
+                
 
             CreateMap<CreateTransactionModel, Transaction>();
+                
 
             CreateMap<Budget, BudgetModel>();
 
             CreateMap<CreateBudgetModel, Budget>();
 
             
-
         }
     }
 }
+

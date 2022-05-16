@@ -17,14 +17,31 @@ namespace HomeBudget.Controllers
         {
             _transactionService = transactionService;
         }
-     
+
+        //[HttpGet("{page/{pageNumber}")]
+        //public ActionResult<IEnumerable<TransactionModel>> GetAllByPage(int budgetId, PagedResult query)
+        //{
+        //    var transactions = _transactionService.GetAllByPage(budgetId, query);
+
+        //    return Ok(transactions);
+        //}
+
         [HttpGet]
-        public ActionResult<IEnumerable<TransactionModel>> GetAll(int budgetId)
+        public ActionResult<IEnumerable<TransactionModel>> GetAll(int budgetId, [FromQuery]RequestParams request)
         {
-            var transactions = _transactionService.GetAll(budgetId);
+            var transactions = _transactionService.GetAll(budgetId, request);
 
             return Ok(transactions);
         }
+
+        //[HttpGet]
+        //public ActionResult<IEnumerable<TransactionModel>> GetAll(int budgetId)
+        //{
+        //    var transactions = _transactionService.GetAll(budgetId);
+
+        //    return Ok(transactions);
+        //}
+
 
         [HttpGet("{id}")]
         public ActionResult<TransactionModel> Get(int id, int budgetId)
