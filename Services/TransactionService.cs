@@ -14,17 +14,10 @@ namespace HomeBudget.Services
         int Create(CreateTransactionModel dto, int budgetId);
         void Delete(int id, int budgetId);
         IEnumerable<TransactionModel> GetAll(int budgetId, RequestParams request);
-        //IEnumerable<TransactionModel> GetAll(int budgetId);
-
         TransactionModel GetById(int id, int budgetId);
         void Update(UpdateTransactionModel dto, int id, int budgetId);
         Budget GetBudgetById(int id);
-
-        
-
     }
-
-
 
     public class TransactionService : ITransactionService
     {
@@ -41,19 +34,24 @@ namespace HomeBudget.Services
             _authorizationService = authorizationService;
             _userContextService = userContextService;
         }
+        
 
         public IEnumerable<TransactionModel> GetAll(int budgetId, RequestParams request)
         {
             var budget = GetBudgetById(budgetId);
 
+
             var transactions = _dbContext.Transactions
                 .Where(x => x.BudgetID == budgetId)
+                .Where(x => request.searchPhrase == null || (x.Category.ToLower().Contains(request.searchPhrase.ToLower())
+                                                         || x.Type.ToLower().Contains(request.searchPhrase.ToLower())))
                 .OrderByDescending(x => x.TransactionDate)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToList();
 
-            
+
+
             var transactionsDto = _mapper.Map<List<TransactionModel>>(transactions);
 
 
@@ -76,25 +74,6 @@ namespace HomeBudget.Services
 
             return result;
         }
-
-
-
-
-        //public IEnumerable<TransactionModel> GetAll(int budgetId)
-        //{
-        //    var budget = GetBudgetById(budgetId);
-
-        //    var transactions = _dbContext.Transactions
-        //        .Where(x => x.BudgetID == budgetId)
-        //        .OrderByDescending(x => x.TransactionDate)
-        //        .ToList();
-
-        //    
-        //    var transactionsDto = _mapper.Map<List<TransactionModel>>(transactions);
-
-
-        //    return transactionsDto;
-        //}
 
         public int Create(CreateTransactionModel dto, int budgetId)
         {
@@ -178,11 +157,28 @@ namespace HomeBudget.Services
 }
 
 
+
+
+
+
+
+        
+
+
        
 
             
                 
             
+        
+
+
+        
+
+        
+
+
+
 
 
 
