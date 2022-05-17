@@ -13,7 +13,7 @@ namespace HomeBudget.Services
     {
         int Create(CreateTransactionModel dto, int budgetId);
         void Delete(int id, int budgetId);
-        IEnumerable<TransactionModel> GetAll(int budgetId, RequestParams request);
+        PagedList<TransactionModel> GetAll(int budgetId, RequestParams request);
         TransactionModel GetById(int id, int budgetId);
         void Update(UpdateTransactionModel dto, int id, int budgetId);
         Budget GetBudgetById(int id);
@@ -36,27 +36,31 @@ namespace HomeBudget.Services
         }
         
 
-        public IEnumerable<TransactionModel> GetAll(int budgetId, RequestParams request)
+        public PagedList<TransactionModel> GetAll(int budgetId, RequestParams request)
         {
             var budget = GetBudgetById(budgetId);
 
-
-            var transactions = _dbContext.Transactions
+            var baseQuery = _dbContext.Transactions
                 .Where(x => x.BudgetID == budgetId)
-                .Where(x => request.searchPhrase == null || (x.Category.ToLower().Contains(request.searchPhrase.ToLower())
-                                                         || x.Type.ToLower().Contains(request.searchPhrase.ToLower())))
+                .Where(x => request.SearchPhrase == null || (x.Category.ToLower().Contains(request.SearchPhrase.ToLower())
+                                                         || x.Type.ToLower().Contains(request.SearchPhrase.ToLower())));
+            
+            var transactions = baseQuery
                 .OrderByDescending(x => x.TransactionDate)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToList();
 
-
+            var totalCount = baseQuery.Count();
 
             var transactionsDto = _mapper.Map<List<TransactionModel>>(transactions);
 
+            var result = new PagedList<TransactionModel>(transactionsDto, totalCount, request.PageNumber, request.PageSize);
+            
 
-            return transactionsDto;
+            return result;
         }
+
 
         public TransactionModel GetById(int id, int budgetId)
         {
