@@ -43,10 +43,31 @@ namespace HomeBudget.Services
             var baseQuery = _dbContext.Transactions
                 .Where(x => x.BudgetID == budgetId)
                 .Where(x => request.SearchPhrase == null || (x.Category.ToLower().Contains(request.SearchPhrase.ToLower())
-                                                         || x.Type.ToLower().Contains(request.SearchPhrase.ToLower())));
-            
+                                                         || x.Description.ToLower().Contains(request.SearchPhrase.ToLower())))
+                .OrderByDescending(x => x.TransactionDate);
+
+
+
+
+            if (!string.IsNullOrEmpty(request.SortBy))
+            {
+                var columnsSelector = new Dictionary<string, Expression<Func<Transaction, object>>>
+                {
+                    { nameof(Transaction.Value), r => r.Value },
+                    { nameof(Transaction.TransactionDate), r => r.TransactionDate },
+                    { nameof(Transaction.Type), r => r.Type },
+                    
+                };
+
+                var selectedColumn = columnsSelector[request.SortBy];
+
+                baseQuery = request.SortDirection == SortDirection.ASC
+                    ? baseQuery.OrderBy(selectedColumn)
+                    : baseQuery.OrderByDescending(selectedColumn);
+            }
+
             var transactions = baseQuery
-                .OrderByDescending(x => x.TransactionDate)
+                //.OrderByDescending(x => x.TransactionDate)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToList();
