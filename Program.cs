@@ -51,7 +51,7 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IBudgetService, BudgetService>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IValidator<RegisterUserModel>, RegisterUserModelValidator>();
-
+builder.Services.AddScoped<IValidator<RequestParams>, RequestParamsValidator>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
