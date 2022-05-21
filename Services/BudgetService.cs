@@ -12,11 +12,11 @@ namespace HomeBudget.Services
 {
     public interface IBudgetService
     {
-        int Create(CreateBudgetModel dto);
-        void Delete(int id);
-        IEnumerable<BudgetModel> GetAll();
-        BudgetModel GetById(int id);
-        void Update(int id, UpdateBudget dto);
+        Task<int> Create(CreateBudgetModel dto);
+        Task<Budget> Delete(int id);
+        Task<IEnumerable<BudgetModel>> GetAll();
+        Task<BudgetModel> GetById(int id);
+        Task<int> Update(int id, UpdateBudget dto);
     }
 
     public class BudgetService : IBudgetService
@@ -37,14 +37,14 @@ namespace HomeBudget.Services
             _userContextService = userContextService;
         }
 
-        public BudgetModel GetById(int id)
+        public async Task<BudgetModel> GetById(int id)
         {
             var userId = (int)_userContextService.GetUserId;
 
-            var budget = _dbContext.Budgets
+            var budget = await _dbContext.Budgets
                 .Where(b => b.UserID == userId)
                 .Include(t => t.Transactions)
-                .FirstOrDefault(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
 
             if(budget is null)
             {
@@ -69,15 +69,15 @@ namespace HomeBudget.Services
 
 
 
-        public IEnumerable<BudgetModel> GetAll()
+        public async Task<IEnumerable<BudgetModel>> GetAll()
         {
             var userId = (int)_userContextService.GetUserId;
 
-            var budget =  _dbContext.Budgets
+            var budget =  await _dbContext.Budgets
                 .Where(b => b.UserID == userId)
                 .Include(t => t.Transactions)
                 .OrderBy(n => n.Name)
-                .ToList();
+                .ToListAsync();
 
 
             if (budget is null)
@@ -93,24 +93,24 @@ namespace HomeBudget.Services
 
 
 
-        public int Create(CreateBudgetModel dto)
+        public async Task<int> Create(CreateBudgetModel dto)
         {
            
             var budget = _mapper.Map<Budget>(dto);
             budget.UserID = (int)_userContextService.GetUserId;
 
             
-            _dbContext.Budgets.Add(budget);
-            _dbContext.SaveChanges();
+            await _dbContext.Budgets.AddAsync(budget);
+            await _dbContext.SaveChangesAsync();
 
             return budget.Id;
         }
 
 
-        public void Delete(int id)
+        public async Task<Budget> Delete(int id)
         {
-            var budget = _dbContext.Budgets
-                .FirstOrDefault(x => x.Id == id);
+            var budget = await _dbContext.Budgets
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if(budget is null)
             {
@@ -127,14 +127,17 @@ namespace HomeBudget.Services
                 throw new ForbidException("Forbidden - Authorization error");
             }
 
-            _dbContext.Budgets.Remove(budget);
-            _dbContext.SaveChanges();
+             _dbContext.Budgets.Remove(budget);
+            await _dbContext.SaveChangesAsync();
+
+            return budget;
+
         }
 
-        public void Update(int id, UpdateBudget dto)
+        public async Task<int> Update(int id, UpdateBudget dto)
         {
-            var budget = _dbContext.Budgets
-                .FirstOrDefault(x => x.Id == id);
+            var budget = await _dbContext.Budgets
+                .FirstOrDefaultAsync(x => x.Id == id);
 
 
             if (budget is null)
@@ -156,10 +159,14 @@ namespace HomeBudget.Services
             budget.Name = dto.Name;
             budget.Description = dto.Description;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+
+            return budget.Id;
 
         }
 
 
     }
 }
+
+            

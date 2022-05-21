@@ -11,12 +11,12 @@ namespace HomeBudget.Services
 {
     public interface ITransactionService
     {
-        int Create(CreateTransactionModel dto, int budgetId);
-        void Delete(int id, int budgetId);
-        PagedList<TransactionModel> GetAll(int budgetId, RequestParams request);
-        TransactionModel GetById(int id, int budgetId);
-        void Update(UpdateTransactionModel dto, int id, int budgetId);
-        Budget GetBudgetById(int id);
+        Task<int> Create(CreateTransactionModel dto, int budgetId);
+        Task<Transaction> Delete(int id, int budgetId);
+        Task<PagedList<TransactionModel>> GetAll(int budgetId, RequestParams request);
+        Task<TransactionModel> GetById(int id, int budgetId);
+        Task<int> Update(UpdateTransactionModel dto, int id, int budgetId);
+        Task<Budget> GetBudgetById(int budgetId);
     }
 
     public class TransactionService : ITransactionService
@@ -36,9 +36,9 @@ namespace HomeBudget.Services
         }
         
 
-        public PagedList<TransactionModel> GetAll(int budgetId, RequestParams request)
+        public async Task<PagedList<TransactionModel>> GetAll(int budgetId, RequestParams request)
         {
-            var budget = GetBudgetById(budgetId);
+            var budget = await GetBudgetById(budgetId);
 
             var baseQuery = _dbContext.Transactions
                 .Where(x => x.BudgetID == budgetId)
@@ -66,11 +66,11 @@ namespace HomeBudget.Services
                     : baseQuery.OrderByDescending(selectedColumn);
             }
 
-            var transactions = baseQuery
+            var transactions = await baseQuery
                 //.OrderByDescending(x => x.TransactionDate)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .ToList();
+                .ToListAsync();
 
             var totalCount = baseQuery.Count();
 
@@ -83,12 +83,12 @@ namespace HomeBudget.Services
         }
 
 
-        public TransactionModel GetById(int id, int budgetId)
+        public async Task<TransactionModel> GetById(int id, int budgetId)
         {
-            var budget = GetBudgetById(budgetId);
+            var budget = await GetBudgetById(budgetId);
 
-            var transaction = _dbContext.Transactions
-                .FirstOrDefault(x => x.Id == id);
+            var transaction = await _dbContext.Transactions
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if(transaction is null || transaction.BudgetID != budgetId)
             {
@@ -100,25 +100,25 @@ namespace HomeBudget.Services
             return result;
         }
 
-        public int Create(CreateTransactionModel dto, int budgetId)
+        public async Task<int> Create(CreateTransactionModel dto, int budgetId)
         {
-            var budget = GetBudgetById(budgetId);
+            var budget = await GetBudgetById(budgetId);
             var transaction = _mapper.Map<Transaction>(dto);
 
             transaction.BudgetID = budgetId;
             
 
-            _dbContext.Transactions.Add(transaction);
-            _dbContext.SaveChanges();
+            await _dbContext.Transactions.AddAsync(transaction);
+            await _dbContext.SaveChangesAsync();
 
             return transaction.Id;
         }
 
-        public void Update(UpdateTransactionModel dto, int id, int budgetId)
+        public async Task<int> Update(UpdateTransactionModel dto, int id, int budgetId)
         {
-            var budget = GetBudgetById(budgetId);
-            var transaction = _dbContext.Transactions
-                .FirstOrDefault(x => x.Id == id);
+            var budget = await GetBudgetById(budgetId);
+            var transaction = await _dbContext.Transactions
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (transaction is null || transaction.BudgetID != budgetId)
             {
@@ -132,15 +132,17 @@ namespace HomeBudget.Services
             transaction.Value = dto.Value; 
             transaction.TransactionDate = dto.TransactionDate;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+
+            return transaction.Id;
         }
 
-        public void Delete(int id, int budgetId)
+        public async Task<Transaction> Delete(int id, int budgetId)
         {
-            var budget = GetBudgetById(budgetId);
+            var budget = await GetBudgetById(budgetId);
 
-            var transaction = _dbContext.Transactions
-                .FirstOrDefault(x => x.Id == id);
+            var transaction = await _dbContext.Transactions
+                .FirstOrDefaultAsync(x => x.Id == id);
 
             if (transaction is null || transaction.BudgetID != budgetId)
             {
@@ -148,17 +150,19 @@ namespace HomeBudget.Services
             }
 
             _dbContext.Transactions.Remove(transaction);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+
+            return transaction;
         }
 
-        public Budget GetBudgetById(int budgetId)
+        public async Task<Budget> GetBudgetById(int budgetId)
         {
-            var userId = (int)_userContextService.GetUserId;
+            var userId =  (int)_userContextService.GetUserId;
 
-            var budget = _dbContext.Budgets
+            var budget =  await _dbContext.Budgets
                 .Where(b => b.UserID == userId)
                 .Include(t => t.Transactions)
-                .FirstOrDefault(m => m.Id == budgetId);
+                .FirstOrDefaultAsync(m => m.Id == budgetId);
 
             if (budget is null)
             {
@@ -175,7 +179,7 @@ namespace HomeBudget.Services
                 throw new ForbidException("Forbidden - Authorization error");
             }
 
-            var result = _mapper.Map<Budget>(budget);
+            var result =  _mapper.Map<Budget>(budget);
             return result;
         }
     }
