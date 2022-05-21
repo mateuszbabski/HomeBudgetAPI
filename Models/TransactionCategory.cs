@@ -12,7 +12,7 @@
         public const string Alcohol = "Alcohol";
         public const string Accessories = "Accessories";
         public const string Personal = "Personal";
-        public const string Healthare = "Healthcare";
+        public const string Healthcare = "Healthcare";
         public const string Others = "Others";
     }
 }
