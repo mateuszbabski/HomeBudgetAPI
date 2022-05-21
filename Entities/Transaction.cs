@@ -15,15 +15,18 @@
         
         public string Description { get; set; }
 
-       
-
         public virtual Budget Budget { get; set; }
+
+        //public virtual TransactionCategory TransactionCategory { get; set; } 
+        //public virtual TransactionType TransactionType { get; set; }
+       
+    }
+}
+
         
 
 
 
-    }
-}
 
 
 
