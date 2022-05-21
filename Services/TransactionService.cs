@@ -153,9 +153,9 @@ namespace HomeBudget.Services
 
         public Budget GetBudgetById(int budgetId)
         {
-            var userId = (int)_userContextService.GetUserId;
+            var userId =  (int)_userContextService.GetUserId;
 
-            var budget = _dbContext.Budgets
+            var budget =  _dbContext.Budgets
                 .Where(b => b.UserID == userId)
                 .Include(t => t.Transactions)
                 .FirstOrDefault(m => m.Id == budgetId);
@@ -175,7 +175,7 @@ namespace HomeBudget.Services
                 throw new ForbidException("Forbidden - Authorization error");
             }
 
-            var result = _mapper.Map<Budget>(budget);
+            var result =  _mapper.Map<Budget>(budget);
             return result;
         }
     }
