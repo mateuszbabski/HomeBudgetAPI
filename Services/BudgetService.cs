@@ -25,20 +25,24 @@ namespace HomeBudget.Services
         private readonly IMapper _mapper;
         private readonly IAuthorizationService _authorizationService;
         private readonly IUserContextService _userContextService;
+        private readonly ILogger<BudgetService> _logger;
 
         public BudgetService(BudgetDbContext dbContext,
             IMapper mapper,
             IAuthorizationService authorizationService, 
-            IUserContextService userContextService)
+            IUserContextService userContextService, 
+            ILogger<BudgetService> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _authorizationService = authorizationService;
             _userContextService = userContextService;
+            _logger = logger;
         }
 
         public async Task<BudgetModel> GetById(int id)
         {
+            
             var userId = (int)_userContextService.GetUserId;
 
             var budget = await _dbContext.Budgets
@@ -48,6 +52,7 @@ namespace HomeBudget.Services
 
             if(budget is null)
             {
+                _logger.LogError("Budget not found");
                 throw new NotFoundException("Budget not found");
             }
 
@@ -58,6 +63,7 @@ namespace HomeBudget.Services
 
             if (!authorizationResult.Succeeded)
             {
+                _logger.LogError("Forbidden - Authorization error");
                 throw new ForbidException("Forbidden - Authorization error");
             }
 
@@ -71,6 +77,7 @@ namespace HomeBudget.Services
 
         public async Task<IEnumerable<BudgetModel>> GetAll()
         {
+            
             var userId = (int)_userContextService.GetUserId;
 
             var budget =  await _dbContext.Budgets
@@ -82,6 +89,7 @@ namespace HomeBudget.Services
 
             if (budget is null)
             {
+                _logger.LogError("Budget not found");
                 throw new NotFoundException("Budget not found");
             }
 
@@ -95,7 +103,7 @@ namespace HomeBudget.Services
 
         public async Task<int> Create(CreateBudgetModel dto)
         {
-           
+            
             var budget = _mapper.Map<Budget>(dto);
             budget.UserID = (int)_userContextService.GetUserId;
 
@@ -109,11 +117,13 @@ namespace HomeBudget.Services
 
         public async Task<Budget> Delete(int id)
         {
+            
             var budget = await _dbContext.Budgets
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if(budget is null)
             {
+                _logger.LogError("Budget not found");
                 throw new NotFoundException("Budget not found");
             }
 
@@ -124,6 +134,7 @@ namespace HomeBudget.Services
 
             if(!authorizationResult.Succeeded)
             {
+                _logger.LogError("Forbidden - Authorization error");
                 throw new ForbidException("Forbidden - Authorization error");
             }
 
@@ -136,12 +147,14 @@ namespace HomeBudget.Services
 
         public async Task<int> Update(int id, UpdateBudget dto)
         {
+            
             var budget = await _dbContext.Budgets
                 .FirstOrDefaultAsync(x => x.Id == id);
 
 
             if (budget is null)
             {
+                _logger.LogError("Budget not found");
                 throw new NotFoundException("Budget not found");
             }
 
@@ -152,6 +165,7 @@ namespace HomeBudget.Services
 
             if (!authorizationResult.Succeeded)
             {
+                _logger.LogError("Forbidden - Authorization error");
                 throw new ForbidException("Forbidden - Authorization error");
             }
 

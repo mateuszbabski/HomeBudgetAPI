@@ -21,14 +21,17 @@ namespace HomeBudget.Services
         private readonly BudgetDbContext _dbContext;
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly AuthenticationSettings _authenticationSettings;
+        private readonly ILogger<AccountService> _logger;
 
         public AccountService(BudgetDbContext dbContext, 
             IPasswordHasher<User> passwordHasher, 
-            AuthenticationSettings authenticationSettings)
+            AuthenticationSettings authenticationSettings,
+            ILogger<AccountService> logger)
         {
             _dbContext = dbContext;
             _passwordHasher = passwordHasher;
             _authenticationSettings = authenticationSettings;
+            _logger = logger;
         }
 
         public void RegisterUser(RegisterUserModel dto)
@@ -52,10 +55,12 @@ namespace HomeBudget.Services
 
         public string GenerateJwt(LoginUserModel dto)
         {
+            _logger.LogInformation("Generate JWT Token Invoked");
             var user = _dbContext.Users.FirstOrDefault(m => m.Email == dto.Email);
 
             if (user is null)
             {
+                _logger.LogError("Invalid username or password");
                 throw new BadRequestException("Invalid username or password");
             }
 
@@ -63,6 +68,7 @@ namespace HomeBudget.Services
 
             if (result == PasswordVerificationResult.Failed)
             {
+                _logger.LogError("Invalid username or password");
                 throw new BadRequestException("Invalid username or password");
             }
 

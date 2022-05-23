@@ -1,5 +1,6 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using NLog;
 using HomeBudget;
 using HomeBudget.Authentication;
 using HomeBudget.Authorization;
@@ -14,8 +15,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
+using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseNLog();
 // utworzenie bazy danych
 builder.Services.AddDbContext<BudgetDbContext>();
 

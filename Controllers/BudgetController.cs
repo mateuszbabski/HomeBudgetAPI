@@ -13,12 +13,15 @@ namespace HomeBudget.Controllers
     {
         private readonly IBudgetService _budgetService;
         private readonly IAuthorizationService _authorizationService;
+        private readonly ILogger<BudgetController> _logger;
 
         public BudgetController(IBudgetService budgetService,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            ILogger<BudgetController> logger)
         {
             _budgetService = budgetService;
             _authorizationService = authorizationService;
+            _logger = logger;
         }
 
         //get all
@@ -36,7 +39,7 @@ namespace HomeBudget.Controllers
 
         public async Task<IActionResult> Get(int id)
         {
-            
+            _logger.LogInformation($"GetById({id}) budget controller method invoked");
             var budget = await _budgetService.GetById(id);
             return Ok(budget);
         }
@@ -47,6 +50,7 @@ namespace HomeBudget.Controllers
 
         public async Task<IActionResult> AddBudget(CreateBudgetModel dto)
         {
+            _logger.LogInformation($"Add new budget controller method invoked");
             var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var id = await _budgetService.Create(dto);
 
@@ -56,7 +60,7 @@ namespace HomeBudget.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(UpdateBudget dto, int id)
         {
-            
+            _logger.LogInformation($"Update budget({id}) controller method invoked");
             await _budgetService.Update(id, dto);
             return Ok($"Budget {id} Updated");
         }
@@ -65,7 +69,7 @@ namespace HomeBudget.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-
+            _logger.LogInformation($"Delete budget({id}) controller method invoked");
             await _budgetService.Delete(id);
             return NoContent();
         }
