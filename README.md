@@ -6,7 +6,7 @@ During last few years I've been tracking my income and expenses in notebook. Aft
 
 That's the main reason why I started this project as a part of my Backend learning path. I wanted to keep whole informations close to me, dont waste paper and use whole process to become developer.
 
-Application is not as easy as another ToDo List or simple Weather Application, but still not so complexe to need help from few more developers.
+Application is not as easy as another ToDo List or simple Weather Application, but still not so complex to need help from few more developers.
 
 ## **Features:**
 
