@@ -73,10 +73,10 @@ namespace HomeBudget.Services
             }
 
             var transactions = await baseQuery
-                //.OrderByDescending(x => x.TransactionDate)
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToListAsync();
+                
 
             var totalCount = baseQuery.Count();
 

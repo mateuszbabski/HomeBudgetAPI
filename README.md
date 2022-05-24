@@ -11,7 +11,7 @@ Application is not as easy as another ToDo List or simple Weather Application, b
 ## **Features:**
 
 - Register/Login user
-- CRUD methods for wallet (Budget) - for example you can split your wallet into few parts - Home Budget, Car budget, Savings - whatever you think is nessesary for you.
+- CRUD methods for wallet (Budget) - for example you can split your wallet into few parts - Home Budget, Car budget, Savings - whatever you think is necessary for you.
 - CRUD methods for transactions - each wallet has its own transactions and methods related to it
 - Authorization and Authentication - your informations are only visible and changeable for you
 

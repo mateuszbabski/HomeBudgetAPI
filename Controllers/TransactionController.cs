@@ -1,7 +1,9 @@
-﻿using HomeBudget.Models;
+﻿using HomeBudget.Cache;
+using HomeBudget.Models;
 using HomeBudget.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
 
 namespace HomeBudget.Controllers
@@ -13,21 +15,42 @@ namespace HomeBudget.Controllers
     {
         private readonly ITransactionService _transactionService;
         private readonly ILogger<TransactionController> _logger;
+        private readonly IMemoryCache _cache;
 
         public TransactionController(ITransactionService transactionService,
-            ILogger<TransactionController> logger)
+            ILogger<TransactionController> logger, 
+            IMemoryCache cache)
         {
             _transactionService = transactionService;
             _logger = logger;
+            _cache = cache;
         }
 
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TransactionModel>>> GetAll(int budgetId, [FromQuery] RequestParams request)
+        public async Task<ActionResult<PagedList<TransactionModel>>> GetAll(int budgetId, [FromQuery] RequestParams request)
         {
             _logger.LogInformation($"Get all transactions from budget({budgetId}) controller method invoked");
-            var transactions = await _transactionService.GetAll(budgetId, request);
+
+            if (_cache.TryGetValue(CacheKeys.Transactions, out PagedList<TransactionModel> transactions))
+            {
+                _logger.LogInformation("Transaction list found in cache");
+            }
+            else
+            {
+                _logger.LogInformation("Transaction list not found in cache. Fetching from database");
+                transactions = await _transactionService.GetAll(budgetId, request);
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions()
+                    .SetSlidingExpiration(TimeSpan.FromSeconds(60))
+                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(300))
+                    .SetPriority(CacheItemPriority.Normal)
+                    .SetSize(512);
+
+                _cache.Set(CacheKeys.Transactions, transactions, cacheEntryOptions);
+            }
+            //var transactions = await _transactionService.GetAll(budgetId, request);
 
             return Ok(transactions);
         }
@@ -42,7 +65,7 @@ namespace HomeBudget.Controllers
         {
             _logger.LogInformation($"Get transaction({id} from budget({budgetId}) controller method invoked");
             var transaction = await _transactionService.GetById(id, budgetId);
-
+            _cache.Remove(CacheKeys.Transactions);
             return Ok(transaction);
         }
 
@@ -52,7 +75,7 @@ namespace HomeBudget.Controllers
             _logger.LogInformation($"Create new transaction in budget({budgetId}) controller method invoked");
             var userId = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
             var id = await _transactionService.Create(dto, budgetId);
-
+            _cache.Remove(CacheKeys.Transactions);
             return Created($"/api/budget/{budgetId}/transaction/{id}", null);
         }
 
@@ -61,7 +84,7 @@ namespace HomeBudget.Controllers
         {
             _logger.LogInformation($"Update transaction({id} from budget({budgetId}) controller method invoked");
             await _transactionService.Update(dto, id, budgetId);
-
+            _cache.Remove(CacheKeys.Transactions);
             return Ok($"Transaction {id} updated");
         }
 
@@ -70,7 +93,7 @@ namespace HomeBudget.Controllers
         {
             _logger.LogInformation($"Delete transaction({id} from budget({budgetId}) controller method invoked");
             await _transactionService.Delete(id, budgetId);
-
+            _cache.Remove(CacheKeys.Transactions);
             return NoContent();
         }
 

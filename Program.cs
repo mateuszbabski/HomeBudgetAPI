@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
 using System.Text;
 using NLog.Web;
+using HomeBudget.Cache;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseNLog();
@@ -45,6 +46,7 @@ builder.Services.AddAuthentication(opt =>
 });
 
 // Add services to the container.
+builder.Services.AddMemoryCache();
 
 builder.Services.AddControllers().AddFluentValidation();
 
@@ -58,6 +60,7 @@ builder.Services.AddScoped<IValidator<RequestParams>, RequestParamsValidator>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<ErrorHandlingMiddleware>();
+
 builder.Services.AddHttpContextAccessor();
 
 
