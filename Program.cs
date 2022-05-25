@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Text;
 using NLog.Web;
 using HomeBudget.Cache;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseNLog();
@@ -46,7 +47,33 @@ builder.Services.AddAuthentication(opt =>
 });
 
 // Add services to the container.
+
+var cacheSettings = new CacheSettings();
+builder.Configuration.GetSection("CacheConfiguration").Bind(cacheSettings);
+builder.Services.AddSingleton(cacheSettings);
+
 builder.Services.AddMemoryCache();
+builder.Services.AddTransient<MemoryCacheService>();
+builder.Services.AddTransient<RedisCacheService>();
+builder.Services.AddTransient<ICacheService, MemoryCacheService>(); 
+//builder.Services.AddTransient<Func<CacheTech, ICacheService>>
+//(serviceProvider => key =>
+//{
+//    switch (key)
+//    {
+//        case CacheTech.Memory:
+//            return serviceProvider.GetService<MemoryCacheService>();
+//        case CacheTech.Redis:
+//            return serviceProvider.GetService<RedisCacheService>();
+//        default:
+//            return serviceProvider.GetService<MemoryCacheService>();
+//    }
+//});
+
+
+
+
+
 
 builder.Services.AddControllers().AddFluentValidation();
 
